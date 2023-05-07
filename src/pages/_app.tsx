@@ -1,6 +1,32 @@
 import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import Layout from '@/ui/layout'
+import Head from 'next/head'
+import React, { FunctionComponent, ReactElement } from 'react'
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+interface PageProps {
+  Component: typeof React.Component & { getLayout?: FunctionComponent }
+  pageProps: any
+}
+
+const Heads = () => (
+  <Head>
+    <title>IQS eCommerce</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link rel="icon" href="/favicon.png" />
+  </Head>
+)
+
+export default function Page({ Component, pageProps }: PageProps) {
+  const renderWithLayout =
+    Component.getLayout ??
+    function (page: ReactElement) {
+      return <Layout>{page}</Layout>
+    }
+
+  return (
+    <>
+      <Heads />
+      {renderWithLayout(<Component {...pageProps} />)}
+    </>
+  )
 }
