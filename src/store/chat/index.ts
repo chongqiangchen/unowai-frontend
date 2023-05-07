@@ -1,7 +1,8 @@
 import { HistoryHelper, MessageHelper, RoleHelper } from '@/utils/chat-helper';
-import { StateCreator, StoreApi, create } from 'zustand'
-import { NamedSet, persist } from 'zustand/middleware'
+import { StoreApi, create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import {THistoryMap, TRole} from "@/types/chat";
 
 type TChatState = TRoleState & THistoryState;
 

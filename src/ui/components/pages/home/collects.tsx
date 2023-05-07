@@ -36,8 +36,8 @@ const Collects = ({ label, items }: TProps) => {
         <div className="mt-8">
             <div className="text-lg font-medium mb-6">{label}</div>
             <div className="md:flex md:gap-4">
-                {items.map(item => (
-                    <Collect collect={item} />
+                {items.map((item, index) => (
+                    <Collect key={"collect_" + index} collect={item} />
                 ))}
                 {!items.length && <EmptyCollect />}
             </div>

@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Document, Page, pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -16,14 +16,14 @@ function highlightPattern(text: string, pattern: any) {
     return text.replace(pattern, (value) => `<mark className="text-[#FEF871]">${value}</mark>`);
 }
 
-const PDFViewer = React.forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TProps, ref: any) => {
+const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TProps, ref: any) => {
     const [numPages, setNumPages] = useState<number>(0);
     const [
         highlightTexts,
         setHighlightTexts,
     ] = useState<string[]>(needMergeHighlightTexts);
     const containerRef = useRef<HTMLDivElement>(null);
-    const pdfWidth = useContainerWidth(containerRef) || 0;
+    // const pdfWidth = useContainerWidth(containerRef) || 0;
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
@@ -94,9 +94,8 @@ const PDFViewer = React.forwardRef(({ pdf, onClose, needMergeHighlightTexts = []
                                 onLoadSuccess={onDocumentLoadSuccess}
                             >
                                 {Array.from(new Array(numPages), (_, index) => (
-                                    <div id={"pdf_" + index + 1}>
+                                    <div key={`page_${index + 1}`} id={"pdf_" + index + 1}>
                                         <Page
-                                            key={`page_${index + 1}`}
                                             pageNumber={index + 1}
                                             customTextRenderer={textRenderer}
                                         />
@@ -110,5 +109,7 @@ const PDFViewer = React.forwardRef(({ pdf, onClose, needMergeHighlightTexts = []
         </Transition>
     );
 });
+
+PDFViewer.displayName = "PDFViewer";
 
 export default PDFViewer;
