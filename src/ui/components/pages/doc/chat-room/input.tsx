@@ -1,3 +1,4 @@
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect, useRef } from 'react';
 
 type TProps = {
@@ -22,7 +23,7 @@ const ChatInput = ({onSubmit}: TProps) => {
     }, [inputValue]);
 
     return (
-        <div className="w-full shadow-[0px_0px_8px_-1px_rgba(0,0,0,0.25)] rounded-lg">
+        <div className="relative flex w-full shadow-[0px_0px_8px_-1px_rgba(0,0,0,0.25)] rounded-lg">
           <textarea
               ref={textAreaRef}
               className="w-full h-24 p-4 m-0 resize-none outline-none overflow-hidden"
@@ -42,6 +43,9 @@ const ChatInput = ({onSubmit}: TProps) => {
                     }
               }}
           />
+          <div className="w-8 mr-4 h-full flex items-center justify-center">
+            <PaperAirplaneIcon className="w-4 h-4 cursor-pointer" />
+          </div>
         </div>
     );
 };

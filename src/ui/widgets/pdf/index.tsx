@@ -1,10 +1,13 @@
 import React, { Fragment, useCallback, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Document, Page, pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.entry';
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import useContainerWidth from '@/hooks/useContainerWidth';
+import { Button } from 'antd';
 
 type TProps = {
     pdf: string | File;
@@ -23,6 +26,7 @@ const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TP
         setHighlightTexts,
     ] = useState<string[]>(needMergeHighlightTexts);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [loadError, setLoadError] = useState<boolean>(false);
     // const pdfWidth = useContainerWidth(containerRef) || 0;
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -45,16 +49,21 @@ const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TP
     const [searchText, setSearchText] = useState('Lo');
 
     const textRenderer = useCallback(
-      (textItem: any) => {
-        let text = textItem.str;
-        for (const highlightText of highlightTexts) {
-          text = highlightPattern(text, highlightText);
-        }
-        return highlightPattern(text, searchText);
-      },
-      [highlightTexts]
+        (textItem: any) => {
+            let text = textItem.str;
+            for (const highlightText of highlightTexts) {
+                text = highlightPattern(text, highlightText);
+            }
+            return highlightPattern(text, searchText);
+        },
+        [highlightTexts]
     );
-  
+
+    const handlePDFLoadError = () => {
+        console.log("handlePDFLoadError");
+        setLoadError(true);
+    }
+
     return (
         <Transition appear show={true} as={Fragment}>
             <Dialog
@@ -73,7 +82,7 @@ const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TP
                         leaveTo="opacity-0"
                     >
                         <Dialog.Overlay
-                            onClick={onClose}
+                            onClick={() => { onClose(); setLoadError(false) }}
                             className="fixed inset-0 bg-white bg-opacity-75 backdrop-blur-md backdrop-brightness-75 transition-opacity"
                         />
                     </Transition.Child>
@@ -92,6 +101,7 @@ const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TP
                                 }}
                                 file={pdf}
                                 onLoadSuccess={onDocumentLoadSuccess}
+                                onLoadError={handlePDFLoadError}
                             >
                                 {Array.from(new Array(numPages), (_, index) => (
                                     <div key={`page_${index + 1}`} id={"pdf_" + index + 1}>
@@ -102,6 +112,15 @@ const PDFViewer = forwardRef(({ pdf, onClose, needMergeHighlightTexts = [] }: TP
                                     </div>
                                 ))}
                             </Document>
+
+                            {loadError && (
+                                <div>
+                                    引用部分：
+                                    <article className="prose">
+                                        {highlightTexts.join("\n")}
+                                    </article>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

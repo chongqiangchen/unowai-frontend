@@ -1,3 +1,4 @@
+import 'core-js/features/array/at';
 import '@/styles/globals.css'
 import Layout from '@/ui/layout'
 import Head from 'next/head'
